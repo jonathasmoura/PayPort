@@ -1,0 +1,90 @@
+# .gitignore for .NET 8 / Visual Studio projects
+# See https://github.com/github/gitignore/blob/main/VisualStudio.gitignore
+# and https://github.com/github/gitignore/blob/main/Dotnet.gitignore
+
+# Visual Studio / Rider / VS Code
+.vs/
+.vscode/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.sln.ide
+
+# Build results
+[Bb]in/
+[Oo]bj/
+out/
+publish/
+artifacts/
+*.dll
+*.exe
+*.pdb
+*.ilk
+*.meta
+
+# Configuration / secrets / local overrides
+.env
+secrets.json
+appsettings.*.local.json
+
+# NuGet
+packages/
+project.lock.json
+project.fragment.lock.json
+*.nupkg
+*.snupkg
+.nuget/
+
+# Dotnet tools / caches
+.dotnet/
+.tools/
+.nuget/packages/
+
+# Test results / coverage
+[Tt]est[Rr]esult*/
+TestResults/
+*.trx
+*.coverage
+coverage/
+coverage.* 
+nunit-*.xml
+*.VisualState.xml
+TestResult.xml
+[Bb]uild[Ll]og.*
+
+# Logs
+*.log
+[Ll]og/
+logs/
+
+# Databases / local data
+*.db
+*.sqlite
+*.mdf
+*.ldf
+
+# Node / frontend
+node_modules/
+wwwroot/lib/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+ehthumbs.db
+
+# IDE plugins / misc
+*.vsix
+*.class
+*.iml
+*.orig
+~$*
+*~
+CodeCoverage/
+*.cache
+
+# Optional: ignore publish output folders and temp folders created by CI
+publish/
+temp/

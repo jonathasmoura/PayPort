@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/Solution Items/">
+    <File Path=".gitignore" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="PP.Application.Tests/PP.Application.Tests.csproj" />
+  </Folder>
+  <Project Path="PP.API/PP.API.csproj" />
+  <Project Path="PP.Application/PP.Application.csproj" />
+  <Project Path="PP.Domain/PP.Domain.csproj" />
+  <Project Path="PP.Infra/PP.Infra.csproj" />
+</Solution>
