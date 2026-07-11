@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PP.Domain.Interfaces
 {
-	internal interface IGenericRepository
+	public interface IGenericRepository<T> where T : class
 	{
 	}
 }

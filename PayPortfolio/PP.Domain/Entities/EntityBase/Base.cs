@@ -22,5 +22,26 @@ namespace PP.Domain.Entities.EntityBase
 		public DateTime? InactivationDate { get; set; }
 		public DateTime? UpdatedAt { get; set; }
 		public DateTime Created { get; set; }
+
+		public virtual void Ativar()
+		{
+			if (IsActive) return;
+
+			IsActive = true;
+			ActivationDate = DateTime.UtcNow;
+			InactivationDate = null;
+			RegistrarAtualizacao();
+		}
+
+		public virtual void Inativar()
+		{
+			if (!IsActive) return;
+
+			IsActive = false;
+			InactivationDate = DateTime.UtcNow;
+			RegistrarAtualizacao();
+		}
+
+		protected void RegistrarAtualizacao() => UpdatedAt = DateTime.UtcNow;
 	}
 }

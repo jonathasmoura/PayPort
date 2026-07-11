@@ -8,5 +8,6 @@ namespace PP.Domain.Interfaces
 {
 	internal interface IUnitOfWork
 	{
+		Task<int> SaveAsync(CancellationToken ct = default);
 	}
 }

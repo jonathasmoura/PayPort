@@ -6,7 +6,14 @@ using System.Threading.Tasks;
 
 namespace PP.Domain.Exceptions
 {
-	internal class DuplicateTransactionException
+	public class DuplicateTransactionException : Exception
 	{
+		public string IdTransacao { get; }
+
+		public DuplicateTransactionException(string idTransacao)
+			: base($"A transação '{idTransacao}' já foi registrada anteriormente.")
+		{
+			IdTransacao = idTransacao;
+		}
 	}
 }
