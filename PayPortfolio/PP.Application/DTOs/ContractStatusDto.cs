@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PP.Domain.Interfaces
+namespace PP.Application.DTOs
 {
-	public interface IUnitOfWork
+	public class ContractStatusDto
 	{
-		Task<int> SaveAsync(CancellationToken ct = default);
 	}
 }

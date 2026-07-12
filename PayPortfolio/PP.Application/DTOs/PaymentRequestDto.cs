@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PP.Domain.Entities
+namespace PP.Application.DTOs
 {
-	internal class Payment
+	public class PaymentRequestDto
 	{
 	}
 }

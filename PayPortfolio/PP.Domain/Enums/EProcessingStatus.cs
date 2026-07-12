@@ -1,12 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PP.Domain.Enums
 {
-	internal class EProcessingStatus
+	public enum EProcessingStatus
 	{
+		Received = 0,
+		InProcess = 1,
+		Processed = 2,
+		Failed = 3
 	}
 }

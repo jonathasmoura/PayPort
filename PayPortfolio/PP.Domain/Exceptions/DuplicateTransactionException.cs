@@ -1,12 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PP.Domain.Exceptions
 {
-	internal class DuplicateTransactionException
+	public class DuplicateTransactionException : Exception
 	{
+		public string IdTransaction { get; }
+
+		public DuplicateTransactionException(string idTransaction)
+			: base($"A transação '{idTransaction}' já foi registrada anteriormente.")
+		{
+			IdTransaction = idTransaction;
+		}
 	}
 }
