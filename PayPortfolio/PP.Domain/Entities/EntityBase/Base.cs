@@ -23,25 +23,25 @@ namespace PP.Domain.Entities.EntityBase
 		public DateTime? UpdatedAt { get; set; }
 		public DateTime Created { get; set; }
 
-		public virtual void Ativar()
+		public virtual void Activate()
 		{
 			if (IsActive) return;
 
 			IsActive = true;
 			ActivationDate = DateTime.UtcNow;
 			InactivationDate = null;
-			RegistrarAtualizacao();
+			RegisterUpdate();
 		}
 
-		public virtual void Inativar()
+		public virtual void Inactivate()
 		{
 			if (!IsActive) return;
 
 			IsActive = false;
 			InactivationDate = DateTime.UtcNow;
-			RegistrarAtualizacao();
+			RegisterUpdate();
 		}
 
-		protected void RegistrarAtualizacao() => UpdatedAt = DateTime.UtcNow;
+		protected void RegisterUpdate() => UpdatedAt = DateTime.UtcNow;
 	}
 }

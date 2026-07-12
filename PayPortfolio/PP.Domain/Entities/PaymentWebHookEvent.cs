@@ -10,67 +10,67 @@ namespace PP.Domain.Entities
 {
 	public class PaymentWebHookEvent : Base
 	{
-		public string IdTransacao { get; private set; } = string.Empty;
-		public string IdContrato { get; private set; } = string.Empty;
-		public decimal Valor { get; private set; }
-		public DateTime DataPagamento { get; private set; }
-		public string StatusRecebido { get; private set; } = string.Empty;
+		public string IdTransaction { get; private set; } = string.Empty;
+		public string IdContract { get; private set; } = string.Empty;
+		public decimal Amount { get; private set; }
+		public DateTime PaymentDate { get; private set; }
+		public string ReceivedStatus { get; private set; } = string.Empty;
 
 		public string PayloadRaw { get; private set; } = string.Empty;
 
-		public DateTime? ProcessadoEm { get; private set; }
+		public DateTime? ProcessedAt { get; private set; }
 
 		public EProcessingStatus? ProcessingStatus { get; private set; }
 
-		public string? ErroProcessamento { get; private set; }
+		public string? ProcessingError { get; private set; }
 
 		private PaymentWebHookEvent() { }
 
-		public static PaymentWebHookEvent Criar(
-			string idTransacao,
-			string idContrato,
-			decimal valor,
-			DateTime dataPagamento,
-			string statusRecebido,
+		public static PaymentWebHookEvent Create(
+			string idTransaction,
+			string idContract,
+			decimal amount,
+			DateTime paymentDate,
+			string receivedStatus,
 			string payloadRaw)
 		{
-			if (string.IsNullOrWhiteSpace(idTransacao))
-				throw new ArgumentException("id_transacao é obrigatório.", nameof(idTransacao));
-			if (string.IsNullOrWhiteSpace(idContrato))
-				throw new ArgumentException("id_contrato é obrigatório.", nameof(idContrato));
+			if (string.IsNullOrWhiteSpace(idTransaction))
+				throw new ArgumentException("id_transaction é obrigatório.", nameof(idTransaction));
+			if (string.IsNullOrWhiteSpace(idContract))
+				throw new ArgumentException("id_contract é obrigatório.", nameof(idContract));
 
 			return new PaymentWebHookEvent
 			{
-				IdTransacao = idTransacao,
-				IdContrato = idContrato,
-				Valor = valor,
-				DataPagamento = dataPagamento,
-				StatusRecebido = statusRecebido,
+				IdTransaction = idTransaction,
+				IdContract = idContract,
+				Amount = amount,
+				PaymentDate = paymentDate,
+				ReceivedStatus = receivedStatus,
 				PayloadRaw = payloadRaw,
-				ProcessingStatus = EProcessingStatus.Recebido
+				ProcessingStatus = EProcessingStatus.Received
 			};
 		}
 
-		public void MarcarEmProcessamento()
+		public void CheckInProcess()
 		{
-			ProcessingStatus = EProcessingStatus.EmProcessamento;
-			RegistrarAtualizacao();
+			ProcessingStatus = EProcessingStatus.InProcess;
+			RegisterUpdate();
 		}
 
-		public void MarcarProcessado()
+		public void CheckProcessed()
 		{
-			ProcessingStatus = EProcessingStatus.Processado;
-			ProcessadoEm = DateTime.UtcNow;
-			ErroProcessamento = null;
-			RegistrarAtualizacao();
+			ProcessingStatus = EProcessingStatus.Processed;
+			ProcessedAt = DateTime.UtcNow;
+			ProcessingError = null;
+			RegisterUpdate();
 		}
 
-		public void MarcarFalha(string erro)
+		public void CheckFailed(string error)
 		{
-			ProcessingStatus = EProcessingStatus.Falhou;
-			ProcessadoEm = DateTime.UtcNow;
-			ErroProcessamento = erro;
-			RegistrarAtualizacao();
+			ProcessingStatus = EProcessingStatus.Failed;
+			ProcessedAt = DateTime.UtcNow;
+			ProcessingError = error;
+			RegisterUpdate();
 		}
 	}
 }

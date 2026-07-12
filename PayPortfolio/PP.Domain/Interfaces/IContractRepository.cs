@@ -9,7 +9,7 @@ namespace PP.Domain.Interfaces
 {
 	public interface IContractRepository
 	{
-		Task<ContractStatus?> GetByContractAsync(string idContrato, CancellationToken ct = default);
+		Task<ContractStatus?> GetByContractAsync(string idContract, CancellationToken ct = default);
 		Task IncludeAsync(ContractStatus status, CancellationToken ct = default);
 		Task UpdateAsync(ContractStatus status, CancellationToken ct = default);
 		Task<IReadOnlyList<ContractStatus>> GetAllAsync(CancellationToken ct = default);

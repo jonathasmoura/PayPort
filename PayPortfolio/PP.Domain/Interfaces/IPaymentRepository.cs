@@ -11,7 +11,7 @@ namespace PP.Domain.Interfaces
 	{
 		Task<bool> ExistsTransactionAsync(string idTransaction, CancellationToken ct = default);
 		Task IncludeAsync(PaymentWebHookEvent eventPayment, CancellationToken ct = default);
-		Task<PaymentWebHookEvent?> ObterPorIdAsync(Guid id, CancellationToken ct = default);
+		Task<PaymentWebHookEvent?> GetByIdAsync(Guid id, CancellationToken ct = default);
 		Task UpdateAsync(PaymentWebHookEvent eventPayment, CancellationToken ct = default);
 		Task<IReadOnlyList<PaymentWebHookEvent>> ListLatestsAsync(int quantity, CancellationToken ct = default);
 	}
