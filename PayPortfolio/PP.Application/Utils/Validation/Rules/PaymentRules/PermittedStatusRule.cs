@@ -22,7 +22,7 @@ namespace PP.Application.Utils.Validation.Rules.PaymentRules
 			return PermittedStatus.Contains(instance.Status)
 				? ValidationResult.Success()
 				: ValidationResult.Failed(
-					$"status '{instance.Status}' não reconhecido. Valores aceitos: {string.Join(", ", StatusPermitidos)}.");
+					$"status '{instance.Status}' não reconhecido. Valores aceitos: {string.Join(", ", PermittedStatus)}.");
 		}
 	}
 }

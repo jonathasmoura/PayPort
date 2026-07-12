@@ -15,10 +15,10 @@ namespace PP.Application.Utils.Validation.Rules.PaymentRules
 		public ValidationResult Validate(PaymentRequestDto instance)
 		{
 			if (instance.PaymentDate == default)
-				return ValidationResult.Failed("data_pagamento é obrigatória.");
+				return ValidationResult.Failed("Data Pagamento é obrigatória.");
 
 			if (instance.PaymentDate > DateTime.UtcNow.Add(ClockTolerance))
-				return ValidationResult.Failed("data_pagamento não pode estar no futuro.");
+				return ValidationResult.Failed("data Pagamento não pode estar no futuro.");
 
 			return ValidationResult.Success();
 		}

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Utils.Validation.Rules.PaymentRules
 {
-	public sealed class IdTransacaoObrigatorioRule : IValidationRule<PaymentRequestDto>
+	public sealed class IdRequiredTransactionRule : IValidationRule<PaymentRequestDto>
 	{
 		public ValidationResult Validate(PaymentRequestDto instance)
 		{

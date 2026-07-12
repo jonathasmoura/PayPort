@@ -1,5 +1,5 @@
 using PP.Infra.ServiceExtensions;
-using PP.Application.ServiceExtension;
+using PP.Application.ServiceExtensions;
 
 
 var builder = WebApplication.CreateBuilder(args);

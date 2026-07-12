@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Contracts
 {
-	internal interface IProcessingService
+	public interface IProcessingService
 	{
+		Task AwaitAsync(TimeSpan duration, CancellationToken ct);
 	}
 }

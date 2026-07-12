@@ -4,9 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PP.Application.BackgroundProcessing
+namespace PP.Application.DTOs
 {
-	internal class PaymentProcessingBackgroundService
+	public enum EReceivedResultDto
 	{
+		AcceptedForProcessing,
+		AlreadyProcessed,
+		InvalidData
 	}
 }

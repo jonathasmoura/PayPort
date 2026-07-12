@@ -8,5 +8,6 @@ namespace PP.Application.Contracts
 {
 	internal interface IPaymentBusinessRuleProcessorService
 	{
+		Task ProcessAsync(Guid eventId, CancellationToken ct);
 	}
 }
