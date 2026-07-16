@@ -1,10 +1,10 @@
-﻿using PP.Domain.Entities;
+﻿using System.Text.Json;
+using PP.Application.Contracts;
+using PP.Domain.Entities;
 using PP.Domain.Interfaces;
 using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace PP.Application.Contracts.Services
@@ -13,66 +13,88 @@ namespace PP.Application.Contracts.Services
 	{
 		private static readonly TimeSpan SimulatedDuration = TimeSpan.FromSeconds(2);
 
-		private readonly IPaymentRepository _eventRepository;
+		private readonly IPaymentRepository _paymentRepository;
 		private readonly IContractRepository _contractRepository;
 		private readonly ILogger<PaymentBusinessRuleProcessorService> _logger;
-		private readonly IProcessingService _proccessingDelay;
+		private readonly IProcessingService _processingService;
+		private readonly IWebSocketNotifier _webSocketNotifier;
 
-		public PaymentBusinessRuleProcessorService(IPaymentRepository eventRepository, IContractRepository contractRepository, ILogger<PaymentBusinessRuleProcessorService> logger, IProcessingService proccessingDelay)
+		public PaymentBusinessRuleProcessorService(IPaymentRepository paymentRepository, IContractRepository contractRepository, ILogger<PaymentBusinessRuleProcessorService> logger, IProcessingService processingService, IWebSocketNotifier webSocketNotifier)
 		{
-			_eventRepository = eventRepository;
+			_paymentRepository = paymentRepository;
 			_contractRepository = contractRepository;
 			_logger = logger;
-			_proccessingDelay = proccessingDelay;
+			_processingService = processingService;
+			_webSocketNotifier = webSocketNotifier;
 		}
 
 		public async Task ProcessAsync(Guid eventId, CancellationToken ct)
 		{
-			var eventProccess = await _eventRepository.GetByIdAsync(eventId, ct);
-			if (eventProccess is null)
+			var evento = await _paymentRepository.GetByIdAsync(eventId, ct);
+			if (evento == null)
 			{
-				_logger.LogWarning("Evento {eventId} não encontrado para processamento.", eventId);
+				_logger.LogWarning("Evento {EventId} não encontrado.", eventId);
 				return;
 			}
 
-			eventProccess.CheckInProcess();
-
 			try
 			{
-				await _eventRepository.UpdateAsync(eventProccess, ct);
+				evento.CheckInProcess();
+				await _paymentRepository.UpdateAsync(evento, ct);
 
-				await _proccessingDelay.AwaitAsync(SimulatedDuration, ct);
+				await _processingService.AwaitAsync(SimulatedDuration, ct);
 
-				var contract = await _contractRepository.GetByContractAsync(eventProccess.IdContract, ct);
-				if (contract is null)
+				var contract = await _contractRepository.GetByContractAsync(evento.IdContract, ct);
+				if (contract == null)
 				{
-					contract = ContractStatus.CreateNew(
-						eventProccess.IdContract, eventProccess.ReceivedStatus, eventProccess.Amount, eventProccess.PaymentDate, eventProccess.IdTransaction);
-					await _contractRepository.IncludeAsync(contract, ct);
+					var created = ContractStatus.CreateNew(evento.IdContract, evento.ReceivedStatus, evento.Amount, evento.PaymentDate, evento.IdTransaction);
+					await _contractRepository.IncludeAsync(created, ct);
 				}
 				else
 				{
-					if (!contract.IsActive)
-						contract.Activate();
-
-					contract.UpdateWithNewPayment(
-						eventProccess.ReceivedStatus, eventProccess.Amount, eventProccess.PaymentDate, eventProccess.IdTransaction);
+					contract.UpdateWithNewPayment(evento.ReceivedStatus, evento.Amount, evento.PaymentDate, evento.IdTransaction);
 					await _contractRepository.UpdateAsync(contract, ct);
 				}
 
-				eventProccess.CheckProcessed();
-				await _eventRepository.UpdateAsync(eventProccess, ct);
+				evento.CheckProcessed();
+			await _paymentRepository.UpdateAsync(evento, ct);
 
-				_logger.LogInformation(
-					"Evento {eventId} (transação {IdTransaction}) processado com sucesso para o contrato {IdContract}.",
-					eventId, eventProccess.IdTransaction, eventProccess.IdContract);
+				try
+				{
+					var payload = JsonSerializer.Serialize(new
+					{
+						EventId = evento.Id,
+						IdTransaction = evento.IdTransaction,
+						IdContract = evento.IdContract,
+						ProcessingStatus = evento.ProcessingStatus?.ToString(),
+						ProcessedAt = evento.ProcessedAt,
+						Amount = evento.Amount,
+						PaymentDate = evento.PaymentDate
+					});
+					await _webSocketNotifier.BroadcastAsync(payload, ct);
+				}
+				catch (Exception exNotify)
+				{
+					_logger.LogWarning(exNotify, "Falha ao notificar via WebSocket para evento {EventId}", eventId);
+				}
+			}
+			catch (OperationCanceledException) when (ct.IsCancellationRequested)
+			{
+				_logger.LogInformation("Processamento do evento {EventId} cancelado pelo token.", eventId);
+				throw;
 			}
 			catch (Exception ex)
 			{
-				eventProccess.CheckFailed(ex.Message);
-				await _eventRepository.UpdateAsync(eventProccess, ct);
-				_logger.LogError(ex, "Falha ao aplicar regra de negócio para o evento {eventId}", eventId);
-				throw;
+				_logger.LogError(ex, "Erro ao processar evento {EventId}", eventId);
+				try
+				{
+					evento.CheckFailed(ex.Message);
+					await _paymentRepository.UpdateAsync(evento, CancellationToken.None);
+				}
+				catch (Exception inner)
+				{
+					_logger.LogError(inner, "Erro ao persistir falha do evento {EventId}", eventId);
+				}
 			}
 		}
 	}

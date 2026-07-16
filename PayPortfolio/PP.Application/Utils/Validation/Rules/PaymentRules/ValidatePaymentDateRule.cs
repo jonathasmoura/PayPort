@@ -9,7 +9,6 @@ namespace PP.Application.Utils.Validation.Rules.PaymentRules
 {
 	public sealed class ValidatePaymentDateRule : IValidationRule<PaymentRequestDto>
 	{
-		// Tolerância para pequena diferença de relógio entre os servidores do banco parceiro e o nosso.
 		private static readonly TimeSpan ClockTolerance = TimeSpan.FromDays(1);
 
 		public ValidationResult Validate(PaymentRequestDto instance)

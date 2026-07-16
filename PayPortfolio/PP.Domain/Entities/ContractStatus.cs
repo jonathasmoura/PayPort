@@ -8,7 +8,7 @@ namespace PP.Domain.Entities
 		public string IdContract { get; private set; } = string.Empty;
 		public string CurrentStatus { get; private set; } = string.Empty;
 		public decimal AmountPaid { get; private set; }
-		public DateTime LastPaymentDate { get; private set; }
+		public DateTime LastPaymentDate { get; private set; } = DateTime.Now;
 		public string LastTransactionId { get; private set; } = string.Empty;
 
 		private ContractStatus() { }

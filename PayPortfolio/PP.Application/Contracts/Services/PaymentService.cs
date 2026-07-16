@@ -4,10 +4,10 @@ using PP.Application.Utils.Validation;
 using PP.Domain.Entities;
 using PP.Domain.Exceptions;
 using PP.Domain.Interfaces;
+using PP.Domain.Enums;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq;	
 using System.Text;
 using System.Threading.Tasks;
 
@@ -30,9 +30,28 @@ namespace PP.Application.Contracts.Services
 			_contractRepository = contractRepository;
 		}
 
-		public async Task<IReadOnlyList<EventLogDto>> ListLatestEventsAsync(int quantity, CancellationToken ct = default)
+
+		public async Task<IReadOnlyList<EventLogDto>> ListLatestEventsAsync(int quantity, string? statusFilter = null, CancellationToken ct = default)
 		{
-			var events = await _paymentRepository.ListLatestsAsync(quantity, ct);
+			EProcessingStatus? processingFilter = null;
+			if (!string.IsNullOrWhiteSpace(statusFilter))
+			{
+				var s = statusFilter.Trim();
+				if (string.Equals(s, "Processed", StringComparison.OrdinalIgnoreCase))
+				{
+					processingFilter = EProcessingStatus.Processed;
+				}
+				else if (string.Equals(s, "Failed", StringComparison.OrdinalIgnoreCase))
+				{
+					processingFilter = EProcessingStatus.Failed;
+				}
+				else
+				{
+					processingFilter = null;
+				}
+			}
+
+			var events = await _paymentRepository.ListLatestsAsync(quantity, processingFilter, ct);
 			return events.Select(e => new EventLogDto
 			{
 				Id = e.Id,
@@ -40,7 +59,7 @@ namespace PP.Application.Contracts.Services
 				IdContract = e.IdContract,
 				Amount = e.Amount,
 				ReceivedStatus = e.ReceivedStatus,
-				ProcessingStatus = e.ProcessingStatus.ToString(),
+				ProcessingStatus = e.ProcessingStatus?.ToString() ?? string.Empty,
 				IsActive = e.IsActive,
 				ReceivedAt = e.Created,
 				ProcessedAt = e.ProcessedAt,
@@ -53,9 +72,28 @@ namespace PP.Application.Contracts.Services
 			var validation = _validator.Validate(request);
 			if (!validation.IsValid)
 			{
+				var errors = string.Join(" | ", validation.Errors);
 				_logger.LogWarning(
 					"Payload inválido para id_transaction '{IdTransaction}': {Errors}",
-					request.IdTransaction, string.Join(" | ", validation.Errors));
+					request.IdTransaction, errors);
+
+				var failedEvent = PaymentWebHookEvent.CreateFailed(
+					request.IdTransaction, request.IdContract, request.Amount, request.PaymentDate, request.Status, payloadRaw, errors);
+
+			try
+			{
+				await _paymentRepository.IncludeAsync(failedEvent, ct);
+				_logger.LogInformation("Evento de webhook inválido salvo como Failed. EventId: {EventId}", failedEvent.Id);
+			}
+			catch (DuplicateTransactionException)
+			{
+				_logger.LogInformation("Corrida detectada ao salvar falha: transação {IdTransaction} duplicada no INSERT.", request.IdTransaction);
+				return new PaymentResponseDto
+				{
+					Result = EReceivedResultDto.AlreadyProcessed,
+					Message = "Evento já recebido anteriormente (concorrência detectada)."
+				};
+			}
 
 				return new PaymentResponseDto
 				{
@@ -65,8 +103,6 @@ namespace PP.Application.Contracts.Services
 				};
 			}
 
-			// 1) Checagem otimista (rápida, via índice) — evita trabalho desnecessário no
-			//    caminho feliz, que é o mais comum (reenvio de rede é a exceção, não a regra).
 			var isExists = await _paymentRepository.ExistsTransactionAsync(request.IdTransaction, ct);
 			if (isExists)
 			{
@@ -83,8 +119,6 @@ namespace PP.Application.Contracts.Services
 
 			try
 			{
-				// 2) Persistência do log bruto — protegida por constraint UNIQUE no banco,
-				//    que é quem de fato garante a idempotência sob concorrência.
 				await _paymentRepository.IncludeAsync(evento, ct);
 			}
 			catch (DuplicateTransactionException)
@@ -97,9 +131,7 @@ namespace PP.Application.Contracts.Services
 				};
 			}
 
-			// 3) Resposta rápida ao banco: o processamento pesado roda em background,
-			//    fora do ciclo de vida desta requisição HTTP.
-			await _paymentProcessingQueue.QueueAsync(evento.Id, ct);
+			await _paymentProcessingQueue.QueueAsync(evento.Id, CancellationToken.None);
 
 			return new PaymentResponseDto
 			{

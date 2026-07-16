@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Contracts
 {
-	internal interface IPaymentBusinessRuleProcessorService
+	public interface IPaymentBusinessRuleProcessorService
 	{
 		Task ProcessAsync(Guid eventId, CancellationToken ct);
 	}

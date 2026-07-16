@@ -19,7 +19,7 @@ namespace PP.Application.DTOs
 		public decimal Amount { get; set; }
 
 		[JsonPropertyName("payment_date")]
-		public DateTime PaymentDate { get; set; }
+		public DateTime PaymentDate { get; set; } = DateTime.Now;
 
 		[JsonPropertyName("status")]
 		public string Status { get; set; } = string.Empty;

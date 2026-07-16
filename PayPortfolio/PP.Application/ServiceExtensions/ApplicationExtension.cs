@@ -2,7 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using PP.Application.Contracts;
 using PP.Application.Contracts.Services;
-using System;
+using PP.Application.DTOs;
+using PP.Application.Utils.Validation;
 
 namespace PP.Application.ServiceExtensions
 {
@@ -10,15 +11,12 @@ namespace PP.Application.ServiceExtensions
 	{
 		public static IServiceCollection AddDIApplicationExtensions(this IServiceCollection services, IConfiguration configuration)
 		{
-			// Application services
+
 			services.AddScoped<IPaymentService, PaymentService>();
+			services.AddTransient<IValidator<PaymentRequestDto>, PaymentRequestValidator>();
 
-			// Processing helper (stateless) — singleton is fine for a simple delay implementation
 			services.AddSingleton<IProcessingService, ProcessingDelayService>();
-
-			// Observação: repositórios e infra serviços (IPaymentRepository, IContractRepository, IPaymentProcessingQueueService, validadores, etc.)
-			// devem ser registrados na camada de Infra/Startup para manter separação de responsabilidades.
-			// Aqui registramos apenas serviços de aplicação/dominio pertencentes a este assembly.
+			services.AddScoped<IPaymentBusinessRuleProcessorService, PaymentBusinessRuleProcessorService>();
 
 			return services;
 		}

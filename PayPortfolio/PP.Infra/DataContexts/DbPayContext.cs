@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PP.Domain.Entities;
+using PP.Infra.DataContexts.Mappings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,6 +20,8 @@ namespace PP.Infra.DataContexts
 		{
 			base.OnModelCreating(modelBuilder);
 
+			modelBuilder.ApplyConfiguration(new PaymentWebHookEventMap());
+			modelBuilder.ApplyConfiguration(new ContractStatusMap());
 		}
 	}
 }

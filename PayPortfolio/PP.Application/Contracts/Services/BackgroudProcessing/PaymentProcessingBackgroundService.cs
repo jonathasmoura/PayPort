@@ -33,7 +33,6 @@ namespace PP.Application.Contracts.Services.BackgroudProcessing
 			{
 				try
 				{
-					// Escopo novo por mensagem: DbContext não é thread-safe/reutilizável entre chamadas concorrentes.
 					using var scope = _scopeFactory.CreateScope();
 					var processor = scope.ServiceProvider.GetRequiredService<IPaymentBusinessRuleProcessorService>();
 
@@ -41,12 +40,10 @@ namespace PP.Application.Contracts.Services.BackgroudProcessing
 				}
 				catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
 				{
-					break; // shutdown normal da aplicação
+					break;
 				}
 				catch (Exception ex)
 				{
-					// Erro isolado por evento: não pode derrubar o worker inteiro, ou nenhum
-					// outro evento na fila seria processado.
 					_logger.LogError(ex, "Falha ao processar evento {eventId}", eventId);
 				}
 			}
