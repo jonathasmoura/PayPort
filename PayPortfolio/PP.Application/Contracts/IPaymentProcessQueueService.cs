@@ -6,7 +6,9 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Contracts
 {
-	internal interface IPaymentProcessQueueService
+	public interface IPaymentProcessingQueueService
 	{
+		ValueTask QueueAsync(Guid eventId, CancellationToken ct = default);
+		IAsyncEnumerable<Guid> ReadAsync(CancellationToken ct);
 	}
 }

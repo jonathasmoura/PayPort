@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Utils.Validation
 {
-	internal interface IValidator
+	public interface IValidationRule<in T>
 	{
+		ValidationResult Validate(T instance);
+	}
+
+	public interface IValidator<in T>
+	{
+		ValidationResult Validate(T instance);
 	}
 }

@@ -13,12 +13,12 @@ namespace PP.Domain.Entities
 		public string IdTransaction { get; private set; } = string.Empty;
 		public string IdContract { get; private set; } = string.Empty;
 		public decimal Amount { get; private set; }
-		public DateTime PaymentDate { get; private set; }
+		public DateTime PaymentDate { get; private set; } = DateTime.Now;
 		public string ReceivedStatus { get; private set; } = string.Empty;
 
 		public string PayloadRaw { get; private set; } = string.Empty;
 
-		public DateTime? ProcessedAt { get; private set; }
+		public DateTime? ProcessedAt { get; private set; } = DateTime.Now;
 
 		public EProcessingStatus? ProcessingStatus { get; private set; }
 
@@ -51,6 +51,31 @@ namespace PP.Domain.Entities
 			};
 		}
 
+		public static PaymentWebHookEvent CreateFailed(
+			string idTransaction,
+			string idContract,
+			decimal amount,
+			DateTime paymentDate,
+			string receivedStatus,
+			string payloadRaw,
+			string error)
+		{
+			var evt = new PaymentWebHookEvent
+			{
+				IdTransaction = idTransaction ?? string.Empty,
+				IdContract = idContract ?? string.Empty,
+				Amount = amount,
+				PaymentDate = paymentDate,
+				ReceivedStatus = receivedStatus ?? string.Empty,
+				PayloadRaw = payloadRaw ?? string.Empty
+			};
+
+
+			evt.CheckFailed(error);
+
+			return evt;
+		}
+
 		public void CheckInProcess()
 		{
 			ProcessingStatus = EProcessingStatus.InProcess;
@@ -60,7 +85,7 @@ namespace PP.Domain.Entities
 		public void CheckProcessed()
 		{
 			ProcessingStatus = EProcessingStatus.Processed;
-			ProcessedAt = DateTime.UtcNow;
+			ProcessedAt = DateTime.Now;
 			ProcessingError = null;
 			RegisterUpdate();
 		}
@@ -68,7 +93,7 @@ namespace PP.Domain.Entities
 		public void CheckFailed(string error)
 		{
 			ProcessingStatus = EProcessingStatus.Failed;
-			ProcessedAt = DateTime.UtcNow;
+			ProcessedAt = DateTime.Now;
 			ProcessingError = error;
 			RegisterUpdate();
 		}

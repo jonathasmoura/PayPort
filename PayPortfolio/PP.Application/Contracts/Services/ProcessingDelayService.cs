@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 
 namespace PP.Application.Contracts.Services
 {
-	internal class ProcessingDelayService
+	public sealed class ProcessingDelayService : IProcessingService
 	{
+		public async Task AwaitAsync(TimeSpan duration, CancellationToken ct)
+		{
+			await Task.Delay(duration, ct);
+		}
 	}
 }

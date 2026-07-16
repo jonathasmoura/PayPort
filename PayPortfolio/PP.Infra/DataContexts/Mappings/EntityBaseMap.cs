@@ -19,9 +19,8 @@ namespace PP.Infra.DataContexts.Mappings
 			builder.Property(e => e.Id)
 				.ValueGeneratedNever();
 
-			builder.Property(e => e.IsActive)
-				.IsRequired()
-				.HasDefaultValue(true);
+		builder.Property(e => e.IsActive)
+			.IsRequired();
 
 			builder.Property(e => e.ActivationDate);
 			builder.Property(e => e.InactivationDate);

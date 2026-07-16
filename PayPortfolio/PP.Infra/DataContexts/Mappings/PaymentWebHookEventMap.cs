@@ -40,9 +40,8 @@ namespace PP.Infra.DataContexts.Mappings
 				.IsRequired()
 				.HasColumnType("nvarchar(max)");
 
-			builder.Property(e => e.ProcessingStatus)
-				.HasConversion<string>()
-				.HasMaxLength(30);
+		// Map enum as integer in the database to match existing migrations/schema
+		builder.Property(e => e.ProcessingStatus);
 
 			builder.Property(e => e.ProcessingError)
 				.HasMaxLength(2000);

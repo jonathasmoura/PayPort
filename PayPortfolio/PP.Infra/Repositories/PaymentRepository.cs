@@ -3,6 +3,7 @@ using PP.Domain.Entities;
 using PP.Domain.Exceptions;
 using PP.Domain.Interfaces;
 using PP.Infra.DataContexts;
+using PP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,11 +44,19 @@ namespace PP.Infra.Repositories
 			}
 		}
 
-		public async Task<IReadOnlyList<PaymentWebHookEvent>> ListLatestsAsync(int quantity, CancellationToken ct = default)
+		public async Task<IReadOnlyList<PaymentWebHookEvent>> ListLatestsAsync(int quantity, EProcessingStatus? processingStatusFilter = null, CancellationToken ct = default)
 		{
-			return await _context.PaymentWebHookEvents
+			var query = _context.PaymentWebHookEvents
 				.IgnoreQueryFilters()
 				.AsNoTracking()
+				.AsQueryable();
+
+			if (processingStatusFilter.HasValue)
+			{
+				query = query.Where(e => e.ProcessingStatus == processingStatusFilter.Value);
+			}
+
+			return await query
 				.OrderByDescending(e => e.Created)
 				.Take(quantity)
 				.ToListAsync(ct);
@@ -69,7 +78,6 @@ namespace PP.Infra.Repositories
 
 		private static bool ItsUniqueKeyViolation(DbUpdateException ex)
 		{
-			// nome do índice conforme mapeamento: UX_PaymentWebHookEvents_IdTransaction
 			return ex.InnerException?.Message.Contains("UX_PaymentWebHookEvents_IdTransaction") == true;
 		}
 	}

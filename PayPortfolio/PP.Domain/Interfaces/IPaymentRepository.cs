@@ -1,4 +1,5 @@
 ﻿using PP.Domain.Entities;
+using PP.Domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,6 @@ namespace PP.Domain.Interfaces
 		Task IncludeAsync(PaymentWebHookEvent eventPayment, CancellationToken ct = default);
 		Task<PaymentWebHookEvent?> GetByIdAsync(Guid id, CancellationToken ct = default);
 		Task UpdateAsync(PaymentWebHookEvent eventPayment, CancellationToken ct = default);
-		Task<IReadOnlyList<PaymentWebHookEvent>> ListLatestsAsync(int quantity, CancellationToken ct = default);
+		Task<IReadOnlyList<PaymentWebHookEvent>> ListLatestsAsync(int quantity, EProcessingStatus? processingStatusFilter = null, CancellationToken ct = default);
 	}
 }

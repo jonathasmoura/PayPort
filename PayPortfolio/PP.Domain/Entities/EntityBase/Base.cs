@@ -12,7 +12,7 @@ namespace PP.Domain.Entities.EntityBase
 		{
 			Id = Guid.NewGuid();
 			IsActive = true;
-			Created = DateTime.UtcNow;
+			Created = DateTime.Now;
 			ActivationDate = Created;
 		}
 
@@ -28,7 +28,7 @@ namespace PP.Domain.Entities.EntityBase
 			if (IsActive) return;
 
 			IsActive = true;
-			ActivationDate = DateTime.UtcNow;
+			ActivationDate = DateTime.Now;
 			InactivationDate = null;
 			RegisterUpdate();
 		}
@@ -38,10 +38,10 @@ namespace PP.Domain.Entities.EntityBase
 			if (!IsActive) return;
 
 			IsActive = false;
-			InactivationDate = DateTime.UtcNow;
+			InactivationDate = DateTime.Now;
 			RegisterUpdate();
 		}
 
-		protected void RegisterUpdate() => UpdatedAt = DateTime.UtcNow;
+		protected void RegisterUpdate() => UpdatedAt = DateTime.Now;
 	}
 }
