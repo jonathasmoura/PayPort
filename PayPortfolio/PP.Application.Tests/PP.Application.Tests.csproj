@@ -20,4 +20,8 @@
     <Using Include="Xunit" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\..\PayPortfolio\PP.Domain\PP.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
